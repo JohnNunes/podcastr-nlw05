@@ -61,9 +61,33 @@ export default function Episode({ episode }: EpisodeProps) {
     )
 }
 
+// Array com as páginas que serão estaticas no momento do build da aplicação
+// Deixando pré carregada
+// paths: []
+
+// Só exibe a tela para o usuário após um pré-carregamento
+// O usuário sempre vai visualizar os componentes da tela já carregados.
+// recomendável para uso de SEO 
+// fallback: 'blocking' -> faz a requisição pelo backend 
 export const getStaticPaths: GetStaticPaths = async () => {
+    const { data } = await api.get('episodes', {
+        params: {
+            _limit: 2,
+            _sort: 'published_at',
+            _order: 'desc'
+        }
+    });
+
+    const paths = data.map(episode => {
+        return {
+            params: {
+                slug: episode.id
+            }
+        }
+    })
+
     return {
-        paths: [],
+        paths,
         fallback: 'blocking'
     }
 }
